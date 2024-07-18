@@ -8,11 +8,13 @@ cloudinary.config({
 
 exports.uploader = (file) => {
   return new Promise(function (resolve, reject) {
-    cloudinary.uploader.upload(file.tempFilePath, { public_id: file.publicId }, function (error, result) {
-      if (error) {
-        return reject(error);
-      }
-      resolve(result);
-    });
+    cloudinary.uploader
+      .upload_stream({ public_id: file.publicId }, function (error, result) {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      })
+      .end(file.data);
   });
 };
