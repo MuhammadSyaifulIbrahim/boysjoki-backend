@@ -145,10 +145,11 @@ exports.checkoutOrder = async (req, res, next) => {
     try {
       total_payment = await getTotalPayment(req);
     } catch (error) {
-      return res.status(error.statusCode).json({
+      return res.status(error.statusCode || 500).json({
         status: false,
-        message: error.message,
+        message: error.message || "Internal server error",
         data: null,
+        error: error,
       });
     }
     const no_invoice = `INV${new Date().getTime()}`;

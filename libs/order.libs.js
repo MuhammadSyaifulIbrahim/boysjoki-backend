@@ -4,23 +4,23 @@ const prisma = new PrismaClient();
 exports.getTotalPayment = async (req) => {
   const { phone, username, password, from_rank_id, to_rank_id, server, processing_time, payment_method } = req.body;
 
-  const ranks = await prisma.rank.findMany({
-    orderBy: {
-      rank_order: "asc",
-    },
-  });
-
-  const from_rank = await prisma.rank.findUnique({
-    where: {
-      id: from_rank_id,
-    },
-  });
-
-  const to_rank = await prisma.rank.findUnique({
-    where: {
-      id: to_rank_id,
-    },
-  });
+  const [ranks, from_rank, to_rank] = await Promise.all([
+    prisma.rank.findMany({
+      orderBy: {
+        rank_order: "asc",
+      },
+    }),
+    prisma.rank.findUnique({
+      where: {
+        id: from_rank_id,
+      },
+    }),
+    prisma.rank.findUnique({
+      where: {
+        id: to_rank_id,
+      },
+    }),
+  ]);
 
   if (!from_rank) {
     throw {
@@ -58,7 +58,7 @@ exports.getTotalPayment = async (req) => {
       message: "Server tidak valid",
     };
   }
-  if (!PROCESS[processing_time] === undefined) {
+  if (PROCESS[processing_time] === undefined) {
     throw {
       statusCode: 404,
       message: "Waktu proses tidak valid",
